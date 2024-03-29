@@ -1,0 +1,453 @@
+basePath: /
+definitions:
+  CompleteUser:
+    properties:
+      birthdate:
+        format: date-time
+        type: string
+      sex:
+        type: string
+      terms_of_service_acknowledge:
+        type: boolean
+      username:
+        type: string
+    required:
+    - birthdate
+    - sex
+    - terms_of_service_acknowledge
+    - username
+    type: object
+  Error:
+    properties:
+      errors:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/ErrorMessage'
+          type: array
+        type: object
+    required:
+    - errors
+    type: object
+  ErrorMessage:
+    properties:
+      error:
+        type: string
+      parameters:
+        items: {}
+        type: array
+    required:
+    - error
+    - parameters
+    type: object
+  Health:
+    properties:
+      db:
+        type: boolean
+    required:
+    - db
+    type: object
+  Place:
+    properties:
+      country:
+        type: string
+      created_at:
+        format: date-time
+        type: string
+      creator_id:
+        type: integer
+      features:
+        items:
+          $ref: '#/definitions/PlaceFeature'
+        type: array
+      id:
+        type: integer
+      latitude:
+        type: number
+      locality:
+        type: string
+      longitude:
+        type: number
+      name:
+        type: string
+      postal_code:
+        type: string
+      region:
+        type: string
+      street_address_line1:
+        type: string
+      street_address_line2:
+        type: string
+      updated_at:
+        format: date-time
+        type: string
+    required:
+    - country
+    - created_at
+    - creator_id
+    - features
+    - id
+    - latitude
+    - locality
+    - longitude
+    - name
+    - postal_code
+    - region
+    - street_address_line1
+    - street_address_line2
+    - updated_at
+    type: object
+  PlaceFeature:
+    properties:
+      created_at:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      location_type:
+        type: string
+      longitude:
+        type: number
+      place_id:
+        type: integer
+      type:
+        type: string
+      updated_at:
+        format: date-time
+        type: string
+    required:
+    - created_at
+    - id
+    - latitude
+    - location_type
+    - longitude
+    - place_id
+    - type
+    - updated_at
+    type: object
+  UpdateUser:
+    properties:
+      birthdate:
+        format: date-time
+        type: string
+      sex:
+        type: string
+      username:
+        type: string
+    required:
+    - birthdate
+    - sex
+    - username
+    type: object
+  User:
+    properties:
+      birthdate:
+        format: date-time
+        type: string
+      created_at:
+        format: date-time
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      sex:
+        type: string
+      terms_of_service_acknowledge:
+        type: boolean
+      updated_at:
+        format: date-time
+        type: string
+      username:
+        type: string
+    required:
+    - birthdate
+    - created_at
+    - id
+    - sex
+    - terms_of_service_acknowledge
+    - updated_at
+    - username
+    type: object
+  Version:
+    properties:
+      build:
+        type: string
+      version:
+        type: string
+    required:
+    - build
+    - version
+    type: object
+info:
+  contact:
+    email: nathanfaucett@gmail.com
+    name: Nathan Faucett
+  description: Pickup API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Pickup API
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Health'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Health'
+      summary: Get Health Check
+      tags:
+      - app
+  /oauth2/{provider}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to provider
+      tags:
+      - oauth2
+  /oauth2/{provider}/callback:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: state
+        in: path
+        name: state
+        required: true
+        type: string
+      - description: code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+      summary: Redirects with provider's token
+      tags:
+      - oauth2
+  /places:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: latitude
+        required: true
+        type: number
+      - in: query
+        name: limit
+        required: true
+        type: integer
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: locationTypes
+        type: array
+      - in: query
+        name: longitude
+        required: true
+        type: number
+      - in: query
+        name: maxDistance
+        required: true
+        type: number
+      - in: query
+        name: offset
+        required: true
+        type: integer
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: types
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Place'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - Authorization: []
+      summary: Get places
+      tags:
+      - place
+  /user:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - Authorization: []
+      summary: Get current user
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: complete user
+        in: body
+        name: update
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - Authorization: []
+      summary: update current user
+      tags:
+      - user
+  /user/complete:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: complete user
+        in: body
+        name: complete
+        required: true
+        schema:
+          $ref: '#/definitions/CompleteUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - Authorization: []
+      summary: complete current user
+      tags:
+      - user
+  /version:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Version'
+      summary: Get Version
+      tags:
+      - app
+securityDefinitions:
+  Authorization:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

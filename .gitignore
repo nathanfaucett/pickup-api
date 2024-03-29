@@ -1,0 +1,11 @@
+.DS_Store
+/out/
+/certs/
+/.vscode/
+/log/
+/html
+/pickup
+/s3.tar
+.env*
+!.env.example
+.history
