@@ -31,12 +31,12 @@ func GetPlaces(c *fiber.Ctx) error {
 	placeRows, err := repository.GetPlaces(search.Latitude, search.Longitude, search.MaxDistance, search.Types, search.LocationTypes, search.Limit, search.Offset)
 	if err != nil {
 		log.Printf("error getting places from db: %v\n", err)
-		return model.NewError(500).AddError("database", "internal", "application").Send(c)
+		return model.NewError(500).AddError("application", "internal", "database").Send(c)
 	}
 	placeFeaturesRows, err := repository.GetPlaceFeatures(search.Latitude, search.Longitude, search.MaxDistance, search.Types, search.LocationTypes, search.Limit, search.Offset)
 	if err != nil {
 		log.Printf("error getting places features from db: %v\n", err)
-		return model.NewError(500).AddError("database", "internal", "application").Send(c)
+		return model.NewError(500).AddError("application", "internal", "database").Send(c)
 	}
 	placeFeaturesRowsByPlaceId := make(map[int32][]repository.PlaceFeatureRowST, len(placeFeaturesRows))
 	for _, placeFeaturesRow := range placeFeaturesRows {
